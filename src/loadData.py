@@ -68,6 +68,7 @@ def dictToGraphObject(graph_dict, idx):
     edge_attr = torch.tensor(graph_dict["edge_attr"], dtype=torch.float) if graph_dict["edge_attr"] else None
     num_nodes = graph_dict["num_nodes"]
     y = torch.tensor(graph_dict["y"][0], dtype=torch.long) if graph_dict["y"] is not None else None
+    idx = torch.tensor([idx], dtype=torch.long)
     return Data(edge_index=edge_index, edge_attr=edge_attr, num_nodes=num_nodes, y=y, idx=idx)
 
 

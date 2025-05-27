@@ -56,7 +56,9 @@ class GraphDataset(Dataset):
         return self.num_graphs  
     
     def get(self, idx):
-        return dictToGraphObject(self.graphs_dicts[idx])
+        data = dictToGraphObject(self.graphs_dicts[idx])
+        data.idx = idx
+        return data
 
     def _count_graphs(self):
         with gzip.open(self.raw, "rt", encoding="utf-8") as f:

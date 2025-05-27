@@ -1,1 +1,0 @@
-# purple-hippo-project

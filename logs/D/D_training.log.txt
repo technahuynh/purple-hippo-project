@@ -1,0 +1,359 @@
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.75batch/s]
+
+Epoch 1/30, Loss: 1.4381, Val loss: 1.0923, Train Acc: 0.3667, Val Acc: 0.4572
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.88batch/s]
+
+Epoch 2/30, Loss: 1.1196, Val loss: 1.0525, Train Acc: 0.4492, Val Acc: 0.4791
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.55batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.88batch/s]
+
+Epoch 3/30, Loss: 1.0479, Val loss: 1.0542, Train Acc: 0.4692, Val Acc: 0.4601
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.54batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.87batch/s]
+
+Epoch 4/30, Loss: 0.9884, Val loss: 0.9567, Train Acc: 0.4903, Val Acc: 0.5302
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.72batch/s]
+
+Epoch 5/30, Loss: 0.9605, Val loss: 0.8677, Train Acc: 0.4955, Val Acc: 0.5073
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.57batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.87batch/s]
+
+Epoch 6/30, Loss: 0.9102, Val loss: 0.8959, Train Acc: 0.5248, Val Acc: 0.5277
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.53batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.87batch/s]
+
+Epoch 7/30, Loss: 0.8942, Val loss: 0.8883, Train Acc: 0.5231, Val Acc: 0.5321
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.53batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.84batch/s]
+
+Epoch 8/30, Loss: 0.8551, Val loss: 0.9180, Train Acc: 0.5365, Val Acc: 0.5039
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.54batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.64batch/s]
+
+Epoch 9/30, Loss: 0.8483, Val loss: 0.8380, Train Acc: 0.5392, Val Acc: 0.5199
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.55batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.73batch/s]
+
+Epoch 10/30, Loss: 0.8172, Val loss: 0.7525, Train Acc: 0.5601, Val Acc: 0.5579
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.52batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.88batch/s]
+
+Epoch 11/30, Loss: 0.7918, Val loss: 0.8040, Train Acc: 0.5680, Val Acc: 0.5773
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.50batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.89batch/s]
+
+Epoch 12/30, Loss: 0.7740, Val loss: 0.7530, Train Acc: 0.5779, Val Acc: 0.6021
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.53batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.84batch/s]
+
+Epoch 13/30, Loss: 0.7555, Val loss: 0.7503, Train Acc: 0.5796, Val Acc: 0.6012
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.53batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.73batch/s]
+
+Epoch 14/30, Loss: 0.7351, Val loss: 0.6981, Train Acc: 0.5929, Val Acc: 0.6109
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.58batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.86batch/s]
+
+Epoch 15/30, Loss: 0.7272, Val loss: 0.8637, Train Acc: 0.5944, Val Acc: 0.5253
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.52batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.84batch/s]
+
+Epoch 16/30, Loss: 0.7205, Val loss: 0.7480, Train Acc: 0.5947, Val Acc: 0.5603
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.53batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.85batch/s]
+
+Epoch 17/30, Loss: 0.7031, Val loss: 0.6931, Train Acc: 0.6037, Val Acc: 0.6133
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.59batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.70batch/s]
+
+Epoch 18/30, Loss: 0.7039, Val loss: 0.7678, Train Acc: 0.6081, Val Acc: 0.5627
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.57batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.89batch/s]
+
+Epoch 19/30, Loss: 0.6805, Val loss: 0.6935, Train Acc: 0.6153, Val Acc: 0.6094
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.89batch/s]
+
+Epoch 20/30, Loss: 0.6728, Val loss: 0.6488, Train Acc: 0.6229, Val Acc: 0.6445
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.54batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.86batch/s]
+
+Epoch 21/30, Loss: 0.6589, Val loss: 0.7184, Train Acc: 0.6306, Val Acc: 0.6075
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.82batch/s]
+
+Epoch 22/30, Loss: 0.6500, Val loss: 0.6699, Train Acc: 0.6334, Val Acc: 0.6265
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.55batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.88batch/s]
+
+Epoch 23/30, Loss: 0.6444, Val loss: 0.7233, Train Acc: 0.6396, Val Acc: 0.5807
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.86batch/s]
+
+Epoch 24/30, Loss: 0.6302, Val loss: 0.6424, Train Acc: 0.6426, Val Acc: 0.6094
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.90batch/s]
+
+Epoch 25/30, Loss: 0.6233, Val loss: 0.6700, Train Acc: 0.6464, Val Acc: 0.6196
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.82batch/s]
+
+Epoch 26/30, Loss: 0.6141, Val loss: 0.6264, Train Acc: 0.6553, Val Acc: 0.6449
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.58batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.89batch/s]
+
+Epoch 27/30, Loss: 0.6081, Val loss: 0.6695, Train Acc: 0.6570, Val Acc: 0.6046
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.57batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.88batch/s]
+
+Epoch 28/30, Loss: 0.5917, Val loss: 0.6922, Train Acc: 0.6615, Val Acc: 0.5856
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.53batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.87batch/s]
+
+Epoch 29/30, Loss: 0.5939, Val loss: 0.6163, Train Acc: 0.6637, Val Acc: 0.6464
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.58batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.82batch/s]
+
+Epoch 30/30, Loss: 0.6040, Val loss: 0.6259, Train Acc: 0.6581, Val Acc: 0.6483
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.57batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.84batch/s]
+Epoch 31/30, Loss: 0.5364, Train Acc: 0.6926, Val Acc: 0.6634
+Epoch 31/30, Loss: 0.5364, Train Acc: 0.6926, Val Acc: 0.6634
+
+Epoch 31/30, Loss: 0.5364, Val loss: 0.5792, Train Acc: 0.6926, Val Acc: 0.6634
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.91batch/s]
+Epoch 32/30, Loss: 0.5268, Train Acc: 0.7008, Val Acc: 0.6595
+Epoch 32/30, Loss: 0.5268, Train Acc: 0.7008, Val Acc: 0.6595
+
+Epoch 32/30, Loss: 0.5268, Val loss: 0.5816, Train Acc: 0.7008, Val Acc: 0.6595
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.53batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.92batch/s]
+Epoch 33/30, Loss: 0.5133, Train Acc: 0.7068, Val Acc: 0.6445
+Epoch 33/30, Loss: 0.5133, Train Acc: 0.7068, Val Acc: 0.6445
+
+Epoch 33/30, Loss: 0.5133, Val loss: 0.6070, Train Acc: 0.7068, Val Acc: 0.6445
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.71batch/s]
+Epoch 34/30, Loss: 0.5089, Train Acc: 0.7125, Val Acc: 0.6503
+Epoch 34/30, Loss: 0.5089, Train Acc: 0.7125, Val Acc: 0.6503
+
+Epoch 34/30, Loss: 0.5089, Val loss: 0.5881, Train Acc: 0.7125, Val Acc: 0.6503
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.54batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.76batch/s]
+Epoch 35/30, Loss: 0.4971, Train Acc: 0.7180, Val Acc: 0.6566
+Epoch 35/30, Loss: 0.4971, Train Acc: 0.7180, Val Acc: 0.6566
+
+Epoch 35/30, Loss: 0.4971, Val loss: 0.5820, Train Acc: 0.7180, Val Acc: 0.6566
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.92batch/s]
+Epoch 36/30, Loss: 0.4972, Train Acc: 0.7212, Val Acc: 0.6581
+Epoch 36/30, Loss: 0.4972, Train Acc: 0.7212, Val Acc: 0.6581
+
+Epoch 36/30, Loss: 0.4972, Val loss: 0.5774, Train Acc: 0.7212, Val Acc: 0.6581
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.53batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.86batch/s]
+Epoch 37/30, Loss: 0.4854, Train Acc: 0.7293, Val Acc: 0.6376
+Epoch 37/30, Loss: 0.4854, Train Acc: 0.7293, Val Acc: 0.6376
+
+Epoch 37/30, Loss: 0.4854, Val loss: 0.6135, Train Acc: 0.7293, Val Acc: 0.6376
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.54batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.89batch/s]
+Epoch 38/30, Loss: 0.4841, Train Acc: 0.7254, Val Acc: 0.6586
+Epoch 38/30, Loss: 0.4841, Train Acc: 0.7254, Val Acc: 0.6586
+
+Epoch 38/30, Loss: 0.4841, Val loss: 0.5818, Train Acc: 0.7254, Val Acc: 0.6586
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.55batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.71batch/s]
+Epoch 39/30, Loss: 0.4845, Train Acc: 0.7310, Val Acc: 0.6581
+Epoch 39/30, Loss: 0.4845, Train Acc: 0.7310, Val Acc: 0.6581
+
+Epoch 39/30, Loss: 0.4845, Val loss: 0.5835, Train Acc: 0.7310, Val Acc: 0.6581
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.54batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.85batch/s]
+Epoch 40/30, Loss: 0.4731, Train Acc: 0.7327, Val Acc: 0.6610
+Epoch 40/30, Loss: 0.4731, Train Acc: 0.7327, Val Acc: 0.6610
+
+Epoch 40/30, Loss: 0.4731, Val loss: 0.5719, Train Acc: 0.7327, Val Acc: 0.6610
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.52batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.92batch/s]
+Epoch 41/30, Loss: 0.4654, Train Acc: 0.7382, Val Acc: 0.6663
+Epoch 41/30, Loss: 0.4654, Train Acc: 0.7382, Val Acc: 0.6663
+
+Epoch 41/30, Loss: 0.4654, Val loss: 0.5809, Train Acc: 0.7382, Val Acc: 0.6663
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.88batch/s]
+Epoch 42/30, Loss: 0.4702, Train Acc: 0.7363, Val Acc: 0.6542
+Epoch 42/30, Loss: 0.4702, Train Acc: 0.7363, Val Acc: 0.6542
+
+Epoch 42/30, Loss: 0.4702, Val loss: 0.5817, Train Acc: 0.7363, Val Acc: 0.6542
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.55batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.80batch/s]
+Epoch 43/30, Loss: 0.4519, Train Acc: 0.7494, Val Acc: 0.6625
+Epoch 43/30, Loss: 0.4519, Train Acc: 0.7494, Val Acc: 0.6625
+
+Epoch 43/30, Loss: 0.4519, Val loss: 0.5773, Train Acc: 0.7494, Val Acc: 0.6625
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.57batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.89batch/s]
+Epoch 44/30, Loss: 0.4515, Train Acc: 0.7491, Val Acc: 0.6629
+Epoch 44/30, Loss: 0.4515, Train Acc: 0.7491, Val Acc: 0.6629
+
+Epoch 44/30, Loss: 0.4515, Val loss: 0.5936, Train Acc: 0.7491, Val Acc: 0.6629
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.53batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.90batch/s]
+Epoch 45/30, Loss: 0.4485, Train Acc: 0.7477, Val Acc: 0.6839
+Epoch 45/30, Loss: 0.4485, Train Acc: 0.7477, Val Acc: 0.6839
+
+Epoch 45/30, Loss: 0.4485, Val loss: 0.5524, Train Acc: 0.7477, Val Acc: 0.6839
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.54batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.87batch/s]
+Epoch 46/30, Loss: 0.4549, Train Acc: 0.7451, Val Acc: 0.6547
+Epoch 46/30, Loss: 0.4549, Train Acc: 0.7451, Val Acc: 0.6547
+
+Epoch 46/30, Loss: 0.4549, Val loss: 0.5907, Train Acc: 0.7451, Val Acc: 0.6547
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.56batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.84batch/s]
+Epoch 47/30, Loss: 0.4394, Train Acc: 0.7552, Val Acc: 0.6479
+Epoch 47/30, Loss: 0.4394, Train Acc: 0.7552, Val Acc: 0.6479
+
+Epoch 47/30, Loss: 0.4394, Val loss: 0.6083, Train Acc: 0.7552, Val Acc: 0.6479
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.55batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.87batch/s]
+Epoch 48/30, Loss: 0.4357, Train Acc: 0.7557, Val Acc: 0.6707
+Epoch 48/30, Loss: 0.4357, Train Acc: 0.7557, Val Acc: 0.6707
+
+Epoch 48/30, Loss: 0.4357, Val loss: 0.5661, Train Acc: 0.7557, Val Acc: 0.6707
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.54batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.90batch/s]
+Epoch 49/30, Loss: 0.4337, Train Acc: 0.7571, Val Acc: 0.6610
+Epoch 49/30, Loss: 0.4337, Train Acc: 0.7571, Val Acc: 0.6610
+
+Epoch 49/30, Loss: 0.4337, Val loss: 0.5969, Train Acc: 0.7571, Val Acc: 0.6610
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.53batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.90batch/s]
+Epoch 50/30, Loss: 0.4266, Train Acc: 0.7622, Val Acc: 0.6722
+Epoch 50/30, Loss: 0.4266, Train Acc: 0.7622, Val Acc: 0.6722
+
+Epoch 50/30, Loss: 0.4266, Val loss: 0.6012, Train Acc: 0.7622, Val Acc: 0.6722
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.57batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.81batch/s]
+Epoch 51/30, Loss: 0.4235, Train Acc: 0.7667, Val Acc: 0.6634
+Epoch 51/30, Loss: 0.4235, Train Acc: 0.7667, Val Acc: 0.6634
+
+Epoch 51/30, Loss: 0.4235, Val loss: 0.5988, Train Acc: 0.7667, Val Acc: 0.6634
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.57batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.88batch/s]
+Epoch 52/30, Loss: 0.4251, Train Acc: 0.7636, Val Acc: 0.6600
+Epoch 52/30, Loss: 0.4251, Train Acc: 0.7636, Val Acc: 0.6600
+
+Epoch 52/30, Loss: 0.4251, Val loss: 0.5951, Train Acc: 0.7636, Val Acc: 0.6600
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.58batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.86batch/s]
+Epoch 53/30, Loss: 0.4159, Train Acc: 0.7709, Val Acc: 0.6649
+Epoch 53/30, Loss: 0.4159, Train Acc: 0.7709, Val Acc: 0.6649
+
+Epoch 53/30, Loss: 0.4159, Val loss: 0.5916, Train Acc: 0.7709, Val Acc: 0.6649
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.54batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.76batch/s]
+Epoch 54/30, Loss: 0.4145, Train Acc: 0.7727, Val Acc: 0.6600
+Epoch 54/30, Loss: 0.4145, Train Acc: 0.7727, Val Acc: 0.6600
+
+Epoch 54/30, Loss: 0.4145, Val loss: 0.5972, Train Acc: 0.7727, Val Acc: 0.6600
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.55batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.80batch/s]
+Epoch 55/30, Loss: 0.4030, Train Acc: 0.7759, Val Acc: 0.6513
+Epoch 55/30, Loss: 0.4030, Train Acc: 0.7759, Val Acc: 0.6513
+
+Epoch 55/30, Loss: 0.4030, Val loss: 0.6272, Train Acc: 0.7759, Val Acc: 0.6513
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.55batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.80batch/s]
+Epoch 56/30, Loss: 0.3974, Train Acc: 0.7776, Val Acc: 0.6299
+Epoch 56/30, Loss: 0.3974, Train Acc: 0.7776, Val Acc: 0.6299
+
+Epoch 56/30, Loss: 0.3974, Val loss: 0.6591, Train Acc: 0.7776, Val Acc: 0.6299
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.54batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.89batch/s]
+Epoch 57/30, Loss: 0.3858, Train Acc: 0.7861, Val Acc: 0.6746
+Epoch 57/30, Loss: 0.3858, Train Acc: 0.7861, Val Acc: 0.6746
+
+Epoch 57/30, Loss: 0.3858, Val loss: 0.5871, Train Acc: 0.7861, Val Acc: 0.6746
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.59batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.88batch/s]
+Epoch 58/30, Loss: 0.3863, Train Acc: 0.7825, Val Acc: 0.6751
+Epoch 58/30, Loss: 0.3863, Train Acc: 0.7825, Val Acc: 0.6751
+
+Epoch 58/30, Loss: 0.3863, Val loss: 0.5794, Train Acc: 0.7825, Val Acc: 0.6751
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.55batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.68batch/s]
+Epoch 59/30, Loss: 0.3906, Train Acc: 0.7827, Val Acc: 0.6449
+Epoch 59/30, Loss: 0.3906, Train Acc: 0.7827, Val Acc: 0.6449
+
+Epoch 59/30, Loss: 0.3906, Val loss: 0.6480, Train Acc: 0.7827, Val Acc: 0.6449
+
+Iterating training graphs: 100%|██████████| 257/257 [00:46<00:00,  5.58batch/s]
+Iterating eval graphs: 100%|██████████| 65/65 [00:09<00:00,  6.76batch/s]
+Epoch 60/30, Loss: 0.3854, Train Acc: 0.7860, Val Acc: 0.6717
+Epoch 60/30, Loss: 0.3854, Train Acc: 0.7860, Val Acc: 0.6717
+
+Epoch 60/30, Loss: 0.3854, Val loss: 0.5877, Train Acc: 0.7860, Val Acc: 0.6717

@@ -5,3 +5,8 @@ matplotlib
 pandas
 tqdm
 argparse
+tqdm
+logging
+matplotlib.pyplot
+pandas
+os

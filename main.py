@@ -6,11 +6,12 @@ import logging
 from tqdm import tqdm
 from torch_geometric.loader import DataLoader
 from torch.utils.data import random_split
+import argparse
 # Load utility functions from cloned repository
 from src.loadData import GraphDataset
 from src.utils import set_seed
 from src.models import GNN
-import argparse
+from src.loss import NoisyCrossEntropyLoss
 
 # Set the random seed
 set_seed()
@@ -111,104 +112,149 @@ def plot_training_progress(train_losses, train_accuracies, output_dir):
     plt.savefig(os.path.join(output_dir, "training_progress.png"))
     plt.close()
 
-def get_user_input(prompt, default=None, required=False, type_cast=str):
-
-    while True:
-        user_input = input(f"{prompt} [{default}]: ")
-        
-        if user_input == "" and required:
-            print("This field is required. Please enter a value.")
-            continue
-        
-        if user_input == "" and default is not None:
-            return default
-        
-        if user_input == "" and not required:
-            return None
-        
-        try:
-            return type_cast(user_input)
-        except ValueError:
-            print(f"Invalid input. Please enter a valid {type_cast.__name__}.")
-
-class NoisyCrossEntropyLoss(torch.nn.Module):
-    def __init__(self, p_noisy):
-        super().__init__()
-        self.p = p_noisy
-        self.ce = torch.nn.CrossEntropyLoss(reduction='none')
-
-    def forward(self, logits, targets):
-        losses = self.ce(logits, targets)
-        weights = (1 - self.p) + self.p * (1 - torch.nn.functional.one_hot(targets, num_classes=logits.size(1)).float().sum(dim=1))
-        return (losses * weights).mean()
-
-
 def main(args):
-    global model, optimizer, criterion, device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
+    # Get the directory where the main script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    # Identify dataset folder (A, B, C, or D)
+    test_dir_name = os.path.basename(os.path.dirname(args.test_path))
 
-    # Parameters for the GCN model
-    input_dim = 300  # Example input feature dimension (you can adjust this)
-    hidden_dim = 64
-    output_dim = 6  # Number of classes
+    # Deligate drop ratio
+    if args.drop_ratio == None:
+        if test_dir_name == 'A':
+            args.drop_ratio = 0.5
+        elif test_dir_name == 'B':
+            args.drop_ratio = 0.5
+        elif test_dir_name == 'C':
+            args.drop_ratio = 0.3
+        elif test_dir_name == 'D':
+            args.drop_ratio = 0.4
+        else:
+            args.drop_ratio = 0.0
 
-    # Initialize the model, optimizer, and loss criterion
-    model = SimpleGCN(input_dim, hidden_dim, output_dim).to(device)
+    # Init GNN
+    if args.gnn == 'gin':
+        model = GNN(gnn_type = 'gin', num_class = 6, num_layer = args.num_layer, emb_dim = args.emb_dim, drop_ratio = args.drop_ratio, virtual_node = False).to(device)
+    elif args.gnn == 'gin-virtual':
+        model = GNN(gnn_type = 'gin', num_class = 6, num_layer = args.num_layer, emb_dim = args.emb_dim, drop_ratio = args.drop_ratio, virtual_node = True).to(device)
+    elif args.gnn == 'gcn':
+        model = GNN(gnn_type = 'gcn', num_class = 6, num_layer = args.num_layer, emb_dim = args.emb_dim, drop_ratio = args.drop_ratio, virtual_node = False).to(device)
+    elif args.gnn == 'gcn-virtual':
+        model = GNN(gnn_type = 'gcn', num_class = 6, num_layer = args.num_layer, emb_dim = args.emb_dim, drop_ratio = args.drop_ratio, virtual_node = True).to(device)
+    else:
+        raise ValueError('Invalid GNN type')
+    # Init optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    criterion = torch.nn.CrossEntropyLoss()
 
+    # Init loss
+    if args.baseline_mode == None:
+        if test_dir_name == 'C' or 'D':
+            args.baseline_mode = 2
+            if args.noise_prob == None:
+                if test_dir_name == 'D':
+                    args.noise_prob = 0.4
+                else:
+                    args.noise_prob = 0.3
+        else:
+            args.baseline_mode = 1
+    if args.baseline_mode == 2:
+        criterion = NoisyCrossEntropyLoss(args.noise_prob)
+    else:
+        criterion = torch.nn.CrossEntropyLoss()
+
+    # Setup logging
+    logs_folder = os.path.join(script_dir, "logs", test_dir_name)
+    log_file = os.path.join(logs_folder, "training.log")
+    os.makedirs(os.path.dirname(log_file), exist_ok=True)
+    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
+    logging.getLogger().addHandler(logging.StreamHandler())  # Console output as well
+
+    # Define checkpoint path relative to the script's directory
+    num_checkpoints = args.num_checkpoints if args.num_checkpoints else 3
+    checkpoint_path = os.path.join(script_dir, "checkpoints", f"model_{test_dir_name}_best.pth")
+    checkpoints_folder = os.path.join(script_dir, "checkpoints", test_dir_name)
+    os.makedirs(checkpoints_folder, exist_ok=True)
+
+    # Load pre-trained model for inference
+    if os.path.exists(checkpoint_path) and not args.train_path:
+        model.load_state_dict(torch.load(checkpoint_path))
+        print(f"Loaded best model from {checkpoint_path}")
+
+    # If train_path is provided, train the model
+    if args.train_path:
+        # Create train and validation datasets
+        full_dataset = GraphDataset(args.train_path, transform=add_zeros)
+        val_size = int(0.2 * len(full_dataset))
+        train_size = len(full_dataset) - val_size
+        generator = torch.Generator().manual_seed(12)
+        train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size], generator=generator)
+
+        train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+        val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
+
+        # Training loop variables
+        num_epochs = args.epochs
+        best_val_accuracy = 0.0   
+        train_losses = []
+        train_accuracies = []
+        val_losses = []
+        val_accuracies = []
+        # Make checkpoint intervals
+        if num_checkpoints > 1:
+            checkpoint_intervals = [int((i + 1) * num_epochs / num_checkpoints) for i in range(num_checkpoints)]
+        else:
+            checkpoint_intervals = [num_epochs]
+
+        # Start training
+        for epoch in range(num_epochs):
+            train_loss, train_acc = train(
+                train_loader, model, optimizer, criterion, device,
+                save_checkpoints=(epoch + 1 in checkpoint_intervals),
+                checkpoint_path=os.path.join(checkpoints_folder, f"model_{test_dir_name}"),
+                current_epoch=epoch
+            )
+            val_loss,val_acc = evaluate(val_loader, model, device, calculate_accuracy=True)
+
+            print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}")
+            logging.info(f"Epoch {epoch + 1}/{num_epochs}, Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}")
+
+            train_losses.append(train_loss)
+            train_accuracies.append(train_acc)
+            val_losses.append(val_loss)
+            val_accuracies.append(val_acc)
+             
+            # Save best model
+            if val_acc > best_val_accuracy:
+                best_val_accuracy = val_acc
+                torch.save(model.state_dict(), checkpoint_path)
+                print(f"Best model updated and saved at {checkpoint_path}")
+
+        plot_training_progress(train_losses, train_accuracies, os.path.join(logs_folder, "plots"))
+        plot_training_progress(val_losses, val_accuracies, os.path.join(logs_folder, "plotsVal"))
+    
     # Prepare test dataset and loader
     test_dataset = GraphDataset(args.test_path, transform=add_zeros)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
-    # Train dataset and loader (if train_path is provided)
-    if args.train_path:
-        train_dataset = GraphDataset(args.train_path, transform=add_zeros)
-        train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-
-        # Training loop
-        num_epochs = 2
-        for epoch in range(num_epochs):
-            train_loss = train(train_loader)
-            train_acc, _ = evaluate(train_loader, calculate_accuracy=True)
-            print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}")
-
-    # Evaluate and save test predictions
-    predictions = evaluate(test_loader, calculate_accuracy=False)
-    test_graph_ids = list(range(len(predictions)))  # Generate IDs for graphs
-
-    # Save predictions to CSV
-    test_dir_name = os.path.dirname(args.test_path).split(os.sep)[-1]
-    output_csv_path = os.path.join(f"testset_{test_dir_name}.csv")
-    output_df = pd.DataFrame({
-        "GraphID": test_graph_ids,
-        "Class": predictions
-    })
-    output_df.to_csv(output_csv_path, index=False)
-    print(f"Test predictions saved to {output_csv_path}")
-
+    # Generate predictions for the test set using the best model
+    model.load_state_dict(torch.load(checkpoint_path))
+    predictions = evaluate(test_loader, model, device, calculate_accuracy=False)
+    save_predictions(predictions, args.test_path)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train and evaluate a GCN model on graph datasets.")
+    parser = argparse.ArgumentParser(description="Train and evaluate GNN models on graph datasets with noisy labels.")
     parser.add_argument("--train_path", type=str, default=None, help="Path to the training dataset (optional).")
     parser.add_argument("--test_path", type=str, required=True, help="Path to the test dataset.")
+    parser.add_argument("--num_checkpoints", type=int, help="Number of checkpoints to save during training.")
+    parser.add_argument('--device', type=int, default=1, help='Which GPU to use if any (default: 1)')
+    parser.add_argument('--gnn', type=str, default='gin-virtual', help='GNN type: gin, gin-virtual, gcn, gcn-virtual (default: gin-virtual)')
+    parser.add_argument('--drop_ratio', type=float, default=None, help='Dropout ratio (default per dataset: A or B (0.5), C (0.3), D (0.4))')
+    parser.add_argument('--num_layer', type=int, default=5, help='Number of GNN message passing layers (default: 5)')
+    parser.add_argument('--emb_dim', type=int, default=300, help='Dimensionality of hidden units in GNNs (default: 300)')
+    parser.add_argument('--batch_size', type=int, default=32, help='Input batch size for training (default: 32)')
+    parser.add_argument('--epochs', type=int, default=200, help='Number of epochs to train (default: 200)')
+    parser.add_argument('--baseline_mode', type=int, default=None, help='Baseline mode: 1 (CE), 2 (Noisy CE) (default per dataset: A or B (1), C or D (2))')
+    parser.add_argument('--noise_prob', type=float, default=None, help='Noise probability p - used if baseline_mode=2 (default per dataset: C (0.3), D (0.4))')
+    
     args = parser.parse_args()
     main(args)
-
-
-def get_arguments():
-    args = {}
-    args['train_path'] = f'/kaggle/working/hackaton/datasets/B/train.json.gz' 
-    args['test_path'] = f'/kaggle/working/hackaton/datasets/B/test.json.gz'
-    args['num_checkpoints'] = int(5)
-    args['device'] = int(1)
-    args['gnn'] = 'gin-virtual'
-    args['drop_ratio'] = float(0.0)
-    args['num_layer'] = int(5)
-    args['emb_dim'] = int(300)
-    args['batch_size'] = int(32)
-    args['epochs'] = int(500)
-    args['baseline_mode'] = int(2)
-    args['noise_prob'] = float(0.5)
-
-    return argparse.Namespace(**args)

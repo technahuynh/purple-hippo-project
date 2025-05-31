@@ -7,7 +7,7 @@ import math
 
 class GraphEncoder(nn.Module):
     """Graph encoder for VGAE"""
-    def __init__(self, input_dim, hidden_dim, latent_dim, gnn_type='gcn'):
+    def __init__(self, input_dim, hidden_dim, latent_dim, gnn_type='gcn', dropout=0.1):
         super(GraphEncoder, self).__init__()
         self.gnn_type = gnn_type
         
@@ -28,7 +28,7 @@ class GraphEncoder(nn.Module):
         
         self.conv_mu = GCNConv(hidden_dim, latent_dim)
         self.conv_logvar = GCNConv(hidden_dim, latent_dim)
-        self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(dropout)
         
     def forward(self, x, edge_index, batch=None):
         # First layer
@@ -58,7 +58,7 @@ class GraphDecoder(nn.Module):
 
 class GraphClassifier(nn.Module):
     """Graph-level classifier"""
-    def __init__(self, latent_dim, hidden_dim, num_classes, pooling='mean'):
+    def __init__(self, latent_dim, hidden_dim, num_classes, pooling='mean', dropout=0.3):
         super(GraphClassifier, self).__init__()
         self.pooling = pooling
         
@@ -72,10 +72,10 @@ class GraphClassifier(nn.Module):
         self.classifier = nn.Sequential(
             nn.Linear(latent_dim, hidden_dim),
             nn.ReLU(),
-            nn.Dropout(0.3),
+            nn.Dropout(dropout), 
             nn.Linear(hidden_dim, hidden_dim // 2),
             nn.ReLU(),
-            nn.Dropout(0.3),
+            nn.Dropout(dropout),  
             nn.Linear(hidden_dim // 2, num_classes)
         )
         
@@ -97,7 +97,7 @@ class GraphClassifier(nn.Module):
 class VGAE_Classifier(nn.Module):
     """Combined Variational Graph Autoencoder and Classifier"""
     def __init__(self, input_dim=1, hidden_dim=128, latent_dim=64, num_classes=6, 
-                 gnn_type='gcn', pooling='attention', use_edge_attr=True):
+             gnn_type='gcn', pooling='attention', use_edge_attr=True, dropout=0.1):
         super(VGAE_Classifier, self).__init__()
         
         self.input_dim = input_dim
@@ -113,12 +113,12 @@ class VGAE_Classifier(nn.Module):
         
         # VGAE components
         encoder_input_dim = input_dim + (hidden_dim if use_edge_attr else 0)
-        self.encoder = GraphEncoder(encoder_input_dim, hidden_dim, latent_dim, gnn_type)
+        self.encoder = GraphEncoder(encoder_input_dim, hidden_dim, latent_dim, gnn_type, dropout) 
         self.decoder = GraphDecoder(latent_dim)
-        
+
         # Classifier
-        self.classifier = GraphClassifier(latent_dim, hidden_dim, num_classes, pooling)
-        
+        self.classifier = GraphClassifier(latent_dim, hidden_dim, num_classes, pooling, dropout)
+    
         # Noise-aware components
         self.noise_detector = nn.Sequential(
             nn.Linear(latent_dim, hidden_dim // 2),

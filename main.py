@@ -182,7 +182,8 @@ def main(args):
             num_classes=6,
             gnn_type=args.gnn_type,
             pooling=args.pooling,
-            use_edge_attr=args.use_edge_attr
+            use_edge_attr=args.use_edge_attr,
+            dropout=args.drop_ratio
         ).to(device)
     elif args.model_type == 'enhanced_vgae':
         model = EnhancedVGAE(
@@ -192,7 +193,8 @@ def main(args):
             num_classes=6,
             gnn_type=args.gnn_type,
             pooling=args.pooling,
-            use_edge_attr=args.use_edge_attr
+            use_edge_attr=args.use_edge_attr,
+            dropout=args.drop_ratio
         ).to(device)
     else:
         raise ValueError(f'Invalid model type: {args.model_type}')
@@ -333,6 +335,7 @@ if __name__ == "__main__":
     parser.add_argument('--input_dim', type=int, default=1)
     parser.add_argument('--hidden_dim', type=int, default=256)
     parser.add_argument('--latent_dim', type=int, default=128)
+    parser.add_argument('--dropout', type=float, default=0.1, help='Dropout ratio')
     parser.add_argument('--gnn_type', type=str, default='gcn', choices=['gcn', 'gin'])
     parser.add_argument('--pooling', type=str, default='attention', choices=['mean', 'sum', 'max', 'attention'])
     parser.add_argument('--use_edge_attr', action='store_true', default=True)

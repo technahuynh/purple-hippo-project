@@ -27,7 +27,7 @@ def add_zeros(data):
         data.x = torch.zeros(data.num_nodes, dtype=torch.long)
     return data
 
-def train_vgae(data_loader, model, optimizer, criterion, device, current_epoch):
+def train_vgae(data_loader, model, optimizer, criterion, device, current_epoch, save_checkpoints, checkpoint_path):
     """Simplified training function for VGAE"""
     model.train()
     total_loss = 0
@@ -58,7 +58,7 @@ def train_vgae(data_loader, model, optimizer, criterion, device, current_epoch):
         optimizer.step()
         total_loss += loss.item()
         pred_classes = torch.argmax(pred, dim=1)
-        correct += (pred == data.y).sum().item()
+        correct += (pred_classes == data.y).sum().item()
         total += data.y.size(0)
     accuracy = correct / total
     avg_loss = total_loss / len(data_loader)
@@ -90,7 +90,7 @@ def evaluate_vgae(data_loader, model, device, calculate_metrics=True):
             pred_classes = torch.argmax(pred, dim=1)
             predictions.extend(pred_classes.cpu().numpy())
             if calculate_metrics:
-                correct += (pred == data.y).sum().item()
+                correct += (pred_classes == data.y).sum().item()
                 total += data.y.size(0)
                 targets.extend(data.y.cpu().numpy())
                 total_loss += criterion(pred, data.y).item()
@@ -275,7 +275,11 @@ def main(args):
             
             # Train
             # train_loss, train_acc, train_f1 = 
-            train_loss, train_acc = train_vgae(train_loader, model, optimizer, criterion, device, epoch)
+            train_loss, train_acc = train_vgae(
+                train_loader, model, optimizer, criterion, device, epoch,
+                save_checkpoints=(epoch + 1 in checkpoint_intervals),
+                checkpoint_path=os.path.join(checkpoints_folder, f"model_{test_dir_name}")
+            )
             # Validate
             val_loss, val_acc, val_f1 = evaluate_vgae(val_loader, model, device, calculate_metrics=True)
 

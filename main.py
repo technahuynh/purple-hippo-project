@@ -335,7 +335,7 @@ if __name__ == "__main__":
     parser.add_argument('--input_dim', type=int, default=1)
     parser.add_argument('--hidden_dim', type=int, default=256)
     parser.add_argument('--latent_dim', type=int, default=128)
-    parser.add_argument('--dropout', type=float, default=0.1, help='Dropout ratio')
+    parser.add_argument('--drop_ratio', type=float, default=0.1, help='Dropout ratio')
     parser.add_argument('--gnn_type', type=str, default='gcn', choices=['gcn', 'gin'])
     parser.add_argument('--pooling', type=str, default='attention', choices=['mean', 'sum', 'max', 'attention'])
     parser.add_argument('--use_edge_attr', action='store_true', default=True)

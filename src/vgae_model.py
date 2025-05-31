@@ -22,8 +22,12 @@ class GraphEncoder(nn.Module):
             self.conv2 = GINConv(hidden_dim)
         
         # Project to latent space
-        self.conv_mu = GCNConv(latent_dim)
-        self.conv_logvar = GCNConv(latent_dim)
+        if gnn_type == 'gcn':
+            self.conv_mu = GCNConv(latent_dim)
+            self.conv_logvar = GCNConv(latent_dim)
+        elif gnn_type == 'gin':
+            self.conv_mu = GINConv(latent_dim)
+            self.conv_logvar = GINConv(latent_dim)
         
         # Input projection layer to match hidden_dim
         self.input_proj = nn.Linear(input_dim, hidden_dim)

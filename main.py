@@ -27,25 +27,12 @@ def add_zeros(data):
         data.x = torch.zeros(data.num_nodes, dtype=torch.long)
     return data
 
-def compute_basic_metrics(predictions, targets):
-    """Compute only essential metrics: accuracy and F1 macro"""
-    if torch.is_tensor(predictions):
-        predictions = predictions.cpu().numpy()
-    if torch.is_tensor(targets):
-        targets = targets.cpu().numpy()
-    
-    accuracy = np.mean(predictions == targets)
-    f1_macro = f1_score(targets, predictions, average='macro', zero_division=0)
-    
-    return accuracy, f1_macro
-
 def train_vgae(data_loader, model, optimizer, criterion, device, current_epoch):
     """Simplified training function for VGAE"""
     model.train()
     total_loss = 0
-    predictions = []
-    all_targets = []
-    
+    correct = 0
+    total = 0    
     for data in tqdm(data_loader, desc="Training", unit="batch"):
         data = data.to(device)
         optimizer.zero_grad()
@@ -59,7 +46,6 @@ def train_vgae(data_loader, model, optimizer, criterion, device, current_epoch):
             loss = criterion(pred, data.y, epoch=current_epoch)
         else:
             loss = criterion(pred, data.y)
-        
         # Add simple KL divergence for VGAE
         if mu.numel() > 0 and logvar.numel() > 0:
             # Clamp logvar to prevent exp() from exploding
@@ -67,34 +53,33 @@ def train_vgae(data_loader, model, optimizer, criterion, device, current_epoch):
             kl_loss = -0.5 * torch.mean(1 + logvar - mu.pow(2) - logvar.exp())
             kl_loss = torch.clamp(kl_loss, max=100)  # Prevent KL from becoming too large
             loss = loss + 0.01 * kl_loss
-            
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer.step()
         total_loss += loss.item()
         pred_classes = torch.argmax(pred, dim=1)
-        predictions.extend(pred_classes.cpu().numpy())
-        all_targets.extend(data.y.cpu().numpy())
-    
-    accuracy, f1_macro = compute_basic_metrics(predictions, all_targets)
+        correct += (pred == data.y).sum().item()
+        total += data.y.size(0)
+    accuracy = correct / total
     avg_loss = total_loss / len(data_loader)
 
     # Save checkpoints if required
-    # if save_checkpoints:
-    #     checkpoint_file = f"{checkpoint_path}_epoch_{current_epoch + 1}_ncod.pth"
-    #     torch.save(model.state_dict(), checkpoint_file)
-    #     print(f"Checkpoint saved at {checkpoint_file}")
-    
-    return avg_loss, accuracy #, f1_macro
+    if save_checkpoints:
+        checkpoint_file = f"{checkpoint_path}_epoch_{current_epoch + 1}_ncod.pth"
+        torch.save(model.state_dict(), checkpoint_file)
+        print(f"Checkpoint saved at {checkpoint_file}")
+
+    return avg_loss, accuracy 
 
 def evaluate_vgae(data_loader, model, device, calculate_metrics=True):
     model.eval()
     predictions = []
-    all_targets = []
+    targets = []
     total_loss = 0
-    
+    correct = 0
+    total = 0
     criterion = torch.nn.CrossEntropyLoss()
-    
+
     with torch.no_grad():
         for data in tqdm(data_loader, desc="Evaluating", unit="batch"):
             data = data.to(device)
@@ -105,14 +90,17 @@ def evaluate_vgae(data_loader, model, device, calculate_metrics=True):
             pred_classes = torch.argmax(pred, dim=1)
             predictions.extend(pred_classes.cpu().numpy())
             if calculate_metrics:
-                all_targets.extend(data.y.cpu().numpy())
+                correct += (pred == data.y).sum().item()
+                total += data.y.size(0)
+                targets.extend(data.y.cpu().numpy())
                 total_loss += criterion(pred, data.y).item()
-    
+
     if calculate_metrics:
-        accuracy, f1_macro = compute_basic_metrics(predictions, all_targets)
+        f1_macro = f1_score(targets, predictions, average='macro', zero_division=0)
         avg_loss = total_loss / len(data_loader)
+        accuracy = correct / total
         return avg_loss, accuracy, f1_macro
-    
+
     return predictions
 
 def save_predictions(predictions, test_path):

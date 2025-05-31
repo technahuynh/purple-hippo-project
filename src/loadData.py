@@ -9,6 +9,8 @@ class GraphDataset(Dataset):
         self.raw = filename
         self.num_graphs, self.graphs_dicts = self._count_graphs() 
         super().__init__(None, transform, pre_transform)
+        # self.index = index
+        
 
     def len(self):
         return self.num_graphs  

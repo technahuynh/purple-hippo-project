@@ -16,6 +16,26 @@ from src.loss import NoisyCrossEntropyLoss
 # Set the random seed
 set_seed()
 
+class EarlyStopping:
+    def __init__(self, patience=5, delta=0, verbose=False):
+        self.patience = patience
+        self.delta = delta
+        self.verbose = verbose
+        self.best_loss = None
+        self.no_improvement_count = 0
+        self.stop_training = False
+    
+    def check_early_stop(self, val_loss):
+        if self.best_loss is None or val_loss < self.best_loss - self.delta:
+            self.best_loss = val_loss
+            self.no_improvement_count = 0
+        else:
+            self.no_improvement_count += 1
+            if self.no_improvement_count >= self.patience:
+                self.stop_training = True
+                if self.verbose:
+                    print("Stopping early as no improvement has been observed.")
+
 def add_zeros(data):
     data.x = torch.zeros(data.num_nodes, dtype=torch.long)
     return data
@@ -138,6 +158,13 @@ def main(args):
         criterion = NoisyCrossEntropyLoss(args.noise_prob)
     else:
         criterion = torch.nn.CrossEntropyLoss()
+    # Initialize early stop
+    patience = args.patience  # epochs to wait after no improvement
+    delta = 0.01  # minimum change in the monitored metric
+    best_val_loss = float("inf")  # best validation loss to compare against
+    no_improvement_count = 0  # count of epochs with no improvement
+    early_stopping = EarlyStopping(patience=patience, delta=delta, verbose=True)
+
 
     # Setup logging
     logs_folder = os.path.join(script_dir, "logs", test_dir_name)
@@ -205,6 +232,11 @@ def main(args):
                 best_val_accuracy = val_acc
                 torch.save(model.state_dict(), checkpoint_path)
                 print(f"Best model updated and saved at {checkpoint_path}")
+            # Early stopping
+            early_stopping.check_early_stop(val_loss)
+            if early_stopping.stop_training:
+                print(f"Early stopping at epoch {epoch}")
+                break
 
         plot_training_progress(train_losses, train_accuracies, os.path.join(logs_folder, "plots"))
         plot_training_progress(val_losses, val_accuracies, os.path.join(logs_folder, "plotsVal"))
@@ -223,6 +255,7 @@ if __name__ == "__main__":
     parser.add_argument("--train_path", type=str, default=None, help="Path to the training dataset (optional).")
     parser.add_argument("--test_path", type=str, required=True, help="Path to the test dataset.")
     parser.add_argument("--num_checkpoints", type=int, help="Number of checkpoints to save during training.")
+    parser.add_argument('--patience', type=int, default=50, help="Number of epochs with no improvement before stop training")
     parser.add_argument('--device', type=int, default=1, help='Which GPU to use if any (default: 1)')
     parser.add_argument('--gnn', type=str, default='gin-virtual', help='GNN type: gin, gin-virtual, gcn, gcn-virtual (default: gin-virtual)')
     parser.add_argument('--drop_ratio', type=float, default=0.5, help='Dropout ratio (default: 0.5)')

@@ -17,13 +17,17 @@ class GraphEncoder(nn.Module):
         elif gnn_type == 'gin':
             self.conv1 = GINConv(nn.Sequential(
                 nn.Linear(input_dim, hidden_dim),
+                nn.BatchNorm1d(hidden_dim),  
                 nn.ReLU(),
-                nn.Linear(hidden_dim, hidden_dim)
+                nn.Linear(hidden_dim, hidden_dim),
+                nn.BatchNorm1d(hidden_dim)   
             ))
             self.conv2 = GINConv(nn.Sequential(
                 nn.Linear(hidden_dim, hidden_dim),
+                nn.BatchNorm1d(hidden_dim),  
                 nn.ReLU(),
-                nn.Linear(hidden_dim, hidden_dim)
+                nn.Linear(hidden_dim, hidden_dim),
+                nn.BatchNorm1d(hidden_dim)  
             ))
         
         self.conv_mu = GCNConv(hidden_dim, latent_dim)

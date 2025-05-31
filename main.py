@@ -43,19 +43,17 @@ def train_vgae(data_loader, model, optimizer, criterion, device, current_epoch):
     """Simplified training function for VGAE"""
     model.train()
     total_loss = 0
-    all_predictions = []
+    predictions = []
     all_targets = []
     
     for data in tqdm(data_loader, desc="Training", unit="batch"):
         data = data.to(device)
         optimizer.zero_grad()
-        
         # Forward pass
         if isinstance(model, EnhancedVGAE):
             pred, mu, logvar, noise_conf = model(data, use_prototypes=False)
         else:
             pred, mu, logvar, noise_conf = model(data)
-        
         # Classification loss
         if hasattr(criterion, 'forward') and 'epoch' in criterion.forward.__code__.co_varnames:
             loss = criterion(pred, data.y, epoch=current_epoch)
@@ -64,31 +62,35 @@ def train_vgae(data_loader, model, optimizer, criterion, device, current_epoch):
         
         # Add simple KL divergence for VGAE
         if mu.numel() > 0 and logvar.numel() > 0:
+            # Clamp logvar to prevent exp() from exploding
+            logvar = torch.clamp(logvar, min=-20, max=10)
             kl_loss = -0.5 * torch.mean(1 + logvar - mu.pow(2) - logvar.exp())
-            loss = loss + 0.01 * kl_loss  # Small weight for KL term
-        
+            kl_loss = torch.clamp(kl_loss, max=100)  # Prevent KL from becoming too large
+            loss = loss + 0.01 * kl_loss
+            
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer.step()
-        
         total_loss += loss.item()
-        
-        # Collect predictions for metrics
         pred_classes = torch.argmax(pred, dim=1)
-        all_predictions.extend(pred_classes.cpu().numpy())
+        predictions.extend(pred_classes.cpu().numpy())
         all_targets.extend(data.y.cpu().numpy())
     
-    accuracy, f1_macro = compute_basic_metrics(all_predictions, all_targets)
+    accuracy, f1_macro = compute_basic_metrics(predictions, all_targets)
     avg_loss = total_loss / len(data_loader)
+
+    # Save checkpoints if required
+    # if save_checkpoints:
+    #     checkpoint_file = f"{checkpoint_path}_epoch_{current_epoch + 1}_ncod.pth"
+    #     torch.save(model.state_dict(), checkpoint_file)
+    #     print(f"Checkpoint saved at {checkpoint_file}")
     
-    return avg_loss, accuracy, f1_macro
+    return avg_loss, accuracy #, f1_macro
 
 def evaluate_vgae(data_loader, model, device, calculate_metrics=True):
-    """Simplified evaluation function"""
     model.eval()
-    all_predictions = []
+    predictions = []
     all_targets = []
-    all_confidence = []
     total_loss = 0
     
     criterion = torch.nn.CrossEntropyLoss()
@@ -96,33 +98,24 @@ def evaluate_vgae(data_loader, model, device, calculate_metrics=True):
     with torch.no_grad():
         for data in tqdm(data_loader, desc="Evaluating", unit="batch"):
             data = data.to(device)
-            
             if isinstance(model, EnhancedVGAE):
                 pred, _, _, _ = model(data, use_prototypes=False)
             else:
                 pred, _, _, _ = model(data)
-            
             pred_classes = torch.argmax(pred, dim=1)
-            all_predictions.extend(pred_classes.cpu().numpy())
-            
+            predictions.extend(pred_classes.cpu().numpy())
             if calculate_metrics:
                 all_targets.extend(data.y.cpu().numpy())
                 total_loss += criterion(pred, data.y).item()
-                
-            # Store confidence scores
-            pred_probs = torch.softmax(pred, dim=1)
-            max_probs = torch.max(pred_probs, dim=1)[0]
-            all_confidence.extend(max_probs.cpu().numpy())
     
     if calculate_metrics:
-        accuracy, f1_macro = compute_basic_metrics(all_predictions, all_targets)
+        accuracy, f1_macro = compute_basic_metrics(predictions, all_targets)
         avg_loss = total_loss / len(data_loader)
-        return avg_loss, accuracy, f1_macro, all_predictions, all_confidence
+        return avg_loss, accuracy, f1_macro
     
-    return all_predictions, all_confidence
+    return predictions
 
-def save_predictions(predictions, test_path, confidence_scores=None):
-    """Save predictions with confidence scores"""
+def save_predictions(predictions, test_path):
     script_dir = os.getcwd() 
     submission_folder = os.path.join(script_dir, "submission")
     test_dir_name = os.path.basename(os.path.dirname(test_path))
@@ -132,44 +125,57 @@ def save_predictions(predictions, test_path, confidence_scores=None):
     output_csv_path = os.path.join(submission_folder, f"testset_{test_dir_name}.csv")
     
     test_graph_ids = list(range(len(predictions)))
-    output_data = {
+    output_df = pd.DataFrame({
         "id": test_graph_ids,
         "pred": predictions
-    }
+    })
     
-    if confidence_scores is not None:
-        output_data["confidence"] = confidence_scores
-    
-    output_df = pd.DataFrame(output_data)
     output_df.to_csv(output_csv_path, index=False)
     print(f"Predictions saved to {output_csv_path}")
 
-def plot_training_progress(train_loss, val_loss, train_f1, val_f1, output_dir):
-    """Plot essential training progress"""
-    epochs = range(1, len(train_loss) + 1)
-    
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-    
-    # Loss plot
-    ax1.plot(epochs, train_loss, label='Train Loss', color='blue')
-    ax1.plot(epochs, val_loss, label='Val Loss', color='red')
-    ax1.set_xlabel('Epoch')
-    ax1.set_ylabel('Loss')
-    ax1.set_title('Training and Validation Loss')
-    ax1.legend()
-    
-    # F1 plot
-    ax2.plot(epochs, train_f1, label='Train F1', color='blue')
-    ax2.plot(epochs, val_f1, label='Val F1', color='red')
-    ax2.set_xlabel('Epoch')
-    ax2.set_ylabel('F1 Macro')
-    ax2.set_title('F1 Macro Score')
-    ax2.legend()
-    
+def plot_training_progress(train_losses, train_accuracies, output_dir):
+    epochs = range(1, len(train_losses) + 1)
+    plt.figure(figsize=(12, 6))
+
+    # Plot loss
+    plt.subplot(1, 2, 1)
+    plt.plot(epochs, train_losses, label="Training Loss", color='blue')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training Loss per Epoch')
+
+    # Plot accuracy
+    plt.subplot(1, 2, 2)
+    plt.plot(epochs, train_accuracies, label="Training Accuracy", color='green')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.title('Training Accuracy per Epoch')
+
+    # Save plots in the current directory
     os.makedirs(output_dir, exist_ok=True)
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, "training_progress.png"), dpi=300, bbox_inches='tight')
+    plt.savefig(os.path.join(output_dir, "training_progress.png"))
     plt.close()
+
+class EarlyStopping:
+    def __init__(self, patience=5, delta=0, verbose=False):
+        self.patience = patience
+        self.delta = delta
+        self.verbose = verbose
+        self.best_loss = None
+        self.no_improvement_count = 0
+        self.stop_training = False
+    
+    def check_early_stop(self, val_loss):
+        if self.best_loss is None or val_loss < self.best_loss - self.delta:
+            self.best_loss = val_loss
+            self.no_improvement_count = 0
+        else:
+            self.no_improvement_count += 1
+            if self.no_improvement_count >= self.patience:
+                self.stop_training = True
+                if self.verbose:
+                    print("Stopping early as no improvement has been observed.")
 
 def main(args):
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -177,6 +183,7 @@ def main(args):
     
     script_dir = os.getcwd() 
     test_dir_name = os.path.basename(os.path.dirname(args.test_path))
+    num_checkpoints = args.num_checkpoints if args.num_checkpoints else 3
 
     # Initialize VGAE model
     if args.model_type == 'vgae':
@@ -222,6 +229,13 @@ def main(args):
         criterion = AdaptiveNoisyLoss(num_classes=6, warmup_epochs=args.warmup_epochs)
     else:
         criterion = torch.nn.CrossEntropyLoss()
+    
+    # Initialize early stop
+    patience = args.patience  # epochs to wait after no improvement
+    delta = 0.01  # minimum change in the monitored metric
+    best_val_loss = float("inf")  # best validation loss to compare against
+    no_improvement_count = 0  # count of epochs with no improvement
+    early_stopping = EarlyStopping(patience=patience, delta=delta, verbose=True)
 
     # Setup logging
     logs_folder = os.path.join(script_dir, "logs", test_dir_name)
@@ -233,6 +247,11 @@ def main(args):
     checkpoint_path = os.path.join(script_dir, "checkpoints", f"model_{test_dir_name}_best.pth")
     checkpoints_folder = os.path.join(script_dir, "checkpoints", test_dir_name)
     os.makedirs(checkpoints_folder, exist_ok=True)
+    num_epochs = args.epochs
+    if num_checkpoints > 1:
+        checkpoint_intervals = [int((i + 1) * num_epochs / num_checkpoints) for i in range(num_checkpoints)]
+    else:
+        checkpoint_intervals = [num_epochs]
 
     # Load pre-trained model for inference
     if os.path.exists(checkpoint_path) and not args.train_path:
@@ -258,32 +277,28 @@ def main(args):
         # Training tracking
         best_val_f1 = 0.0
         train_losses, val_losses = [], []
-        train_f1s, val_f1s = [], []
+        train_accuracies, val_f1s = [], []
 
         # Training loop
         for epoch in range(args.epochs):
             print(f"\nEpoch {epoch + 1}/{args.epochs}")
             
             # Train
-            train_loss, train_acc, train_f1 = train_vgae(
-                train_loader, model, optimizer, criterion, device, epoch
-            )
-            
+            # train_loss, train_acc, train_f1 = 
+            train_loss, train_acc = train_vgae(train_loader, model, optimizer, criterion, device, epoch)
             # Validate
-            val_loss, val_acc, val_f1, _, _ = evaluate_vgae(
-                val_loader, model, device, calculate_metrics=True
-            )
+            val_loss, val_acc, val_f1 = evaluate_vgae(val_loader, model, device, calculate_metrics=True)
 
             # Store metrics
             train_losses.append(train_loss)
             val_losses.append(val_loss)
-            train_f1s.append(train_f1)
+            train_accuracies.append(train_acc)
             val_f1s.append(val_f1)
 
             # Log progress
-            print(f"Train - Loss: {train_loss:.4f}, F1: {train_f1:.4f}")
-            print(f"Val   - Loss: {val_loss:.4f}, F1: {val_f1:.4f}")
-            logging.info(f"Epoch {epoch + 1} - Train F1: {train_f1:.4f}, Val F1: {val_f1:.4f}")
+            print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}, Val F1 {val_f1:.4f}")
+            if hasattr(logging, 'info'):
+                logging.info(f"Epoch {epoch + 1}/{num_epochs}, Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f}, Val Acc: {val_acc:.4f}, Val F1 {val_f1:.4f}")
 
             # Update scheduler
             scheduler.step(val_f1)
@@ -292,32 +307,31 @@ def main(args):
             if val_f1 > best_val_f1:
                 best_val_f1 = val_f1
                 torch.save(model.state_dict(), checkpoint_path)
-                print(f"Best model saved! F1: {best_val_f1:.4f}")
-
+                print(f"Best model updated and saved at {checkpoint_path}. F1: {best_val_f1:.4f}")
+            # Save checkpoints
+            if (epoch + 1) in checkpoint_intervals:
+                checkpoint_file = f"{checkpoint_path}_epoch_{epoch + 1}.pth"
+                torch.save(model.state_dict(), checkpoint_file)
+                print(f"Checkpoint saved at {checkpoint_file}")
             # Early stopping
-            if epoch > args.patience and all(
-                val_f1s[-1] <= val_f1s[-(i+1)] 
-                for i in range(1, min(args.patience, len(val_f1s)))
-            ):
-                print(f"Early stopping at epoch {epoch + 1}")
+            early_stopping.check_early_stop(val_loss)
+            if early_stopping.stop_training:
+                print(f"Early stopping at epoch {epoch}")
                 break
 
         # Plot training progress
-        plot_training_progress(train_losses, val_losses, train_f1s, val_f1s, 
-                             os.path.join(logs_folder, "plots"))
-        
+        plot_training_progress(train_losses, train_accuracies, os.path.join(logs_folder, "plots"))
+        plot_training_progress(val_losses, val_f1s, os.path.join(logs_folder, "plotsVal"))
         print(f"Training completed. Best Val F1: {best_val_f1:.4f}")
     
     # Test phase
     print("\nGenerating test predictions...")
     test_dataset = GraphDataset(args.test_path, transform=add_zeros)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
-
+        
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
-    test_predictions, test_confidence = evaluate_vgae(test_loader, model, device, calculate_metrics=False)
-    
-    save_predictions(test_predictions, args.test_path, test_confidence)
-    print("Completed!")
+    test_predictions = evaluate_vgae(test_loader, model, device, calculate_metrics=False)
+    save_predictions(test_predictions, args.test_path)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Streamlined VGAE training with minimal metrics")
@@ -337,6 +351,7 @@ if __name__ == "__main__":
     
     # Training arguments
     # parser.add_argument('--device', type=int, default=0)
+    parser.add_argument("--num_checkpoints", type=int, help="Number of checkpoints to save during training.")
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--epochs', type=int, default=200)
     parser.add_argument('--lr', type=float, default=0.001)

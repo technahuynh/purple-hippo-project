@@ -172,10 +172,10 @@ def plot_training_progress(train_loss, val_loss, train_f1, val_f1, output_dir):
     plt.close()
 
 def main(args):
-    device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() else torch.device("cpu")
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print(f"Using device: {device}")
     
-    script_dir = os.path.dirname(os.path.abspath(__file__))
+    script_dir = os.getcwd() 
     test_dir_name = os.path.basename(os.path.dirname(args.test_path))
 
     # Initialize VGAE model
@@ -205,7 +205,7 @@ def main(args):
     print(f"Model: {args.model_type}, Parameters: {sum(p.numel() for p in model.parameters()):,}")
 
     # Initialize optimizer and scheduler
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode='max', factor=0.5, patience=10, verbose=True
     )
@@ -227,17 +227,12 @@ def main(args):
     logs_folder = os.path.join(script_dir, "logs", test_dir_name)
     log_file = os.path.join(logs_folder, "training.log")
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
-    logging.basicConfig(
-        filename=log_file, 
-        level=logging.INFO, 
-        format='%(asctime)s - %(message)s',
-        filemode='w'
-    )
+    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(message)s')
     logging.getLogger().addHandler(logging.StreamHandler())
-
     # Define checkpoint path
     checkpoint_path = os.path.join(script_dir, "checkpoints", f"model_{test_dir_name}_best.pth")
-    os.makedirs(os.path.dirname(checkpoint_path), exist_ok=True)
+    checkpoints_folder = os.path.join(script_dir, "checkpoints", test_dir_name)
+    os.makedirs(checkpoints_folder, exist_ok=True)
 
     # Load pre-trained model for inference
     if os.path.exists(checkpoint_path) and not args.train_path:
@@ -341,11 +336,10 @@ if __name__ == "__main__":
     parser.add_argument('--use_edge_attr', action='store_true', default=True)
     
     # Training arguments
-    parser.add_argument('--device', type=int, default=0)
+    # parser.add_argument('--device', type=int, default=0)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--epochs', type=int, default=200)
     parser.add_argument('--lr', type=float, default=0.001)
-    parser.add_argument('--weight_decay', type=float, default=1e-5)
     parser.add_argument('--patience', type=int, default=20)
     
     # Loss arguments

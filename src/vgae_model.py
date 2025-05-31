@@ -1,9 +1,12 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import GCNConv, GINConv, global_mean_pool, global_add_pool, global_max_pool
+from torch_geometric.nn import global_mean_pool, global_add_pool, global_max_pool
 from torch_geometric.utils import to_dense_adj, dense_to_sparse
 import math
+
+# Import the custom convolution layers
+from src.conv import GCNConv, GINConv
 
 class GraphEncoder(nn.Module):
     """Graph encoder for VGAE"""
@@ -12,40 +15,42 @@ class GraphEncoder(nn.Module):
         self.gnn_type = gnn_type
         
         if gnn_type == 'gcn':
-            self.conv1 = GCNConv(input_dim, hidden_dim)
-            self.conv2 = GCNConv(hidden_dim, hidden_dim)
+            self.conv1 = GCNConv(hidden_dim)
+            self.conv2 = GCNConv(hidden_dim)
         elif gnn_type == 'gin':
-            self.conv1 = GINConv(nn.Sequential(
-                nn.Linear(input_dim, hidden_dim),
-                nn.BatchNorm1d(hidden_dim),  
-                nn.ReLU(),
-                nn.Linear(hidden_dim, hidden_dim),
-                nn.BatchNorm1d(hidden_dim)   
-            ))
-            self.conv2 = GINConv(nn.Sequential(
-                nn.Linear(hidden_dim, hidden_dim),
-                nn.BatchNorm1d(hidden_dim),  
-                nn.ReLU(),
-                nn.Linear(hidden_dim, hidden_dim),
-                nn.BatchNorm1d(hidden_dim)  
-            ))
+            self.conv1 = GINConv(hidden_dim)
+            self.conv2 = GINConv(hidden_dim)
         
-        self.conv_mu = GCNConv(hidden_dim, latent_dim)
-        self.conv_logvar = GCNConv(hidden_dim, latent_dim)
+        # Project to latent space
+        self.conv_mu = GCNConv(latent_dim)
+        self.conv_logvar = GCNConv(latent_dim)
+        
+        # Input projection layer to match hidden_dim
+        self.input_proj = nn.Linear(input_dim, hidden_dim)
+        
         self.dropout = nn.Dropout(dropout)
+        self.batch_norm1 = nn.BatchNorm1d(hidden_dim)
+        self.batch_norm2 = nn.BatchNorm1d(hidden_dim)
         
-    def forward(self, x, edge_index, batch=None):
+    def forward(self, x, edge_index, edge_attr, batch=None):
+        # Project input to hidden dimension
+        h = self.input_proj(x)
+        
         # First layer
-        h = F.relu(self.conv1(x, edge_index))
+        h = self.conv1(h, edge_index, edge_attr)
+        h = self.batch_norm1(h)
+        h = F.relu(h)
         h = self.dropout(h)
         
         # Second layer
-        h = F.relu(self.conv2(h, edge_index))
+        h = self.conv2(h, edge_index, edge_attr)
+        h = self.batch_norm2(h)
+        h = F.relu(h)
         h = self.dropout(h)
         
         # Latent parameters
-        mu = self.conv_mu(h, edge_index)
-        logvar = self.conv_logvar(h, edge_index)
+        mu = self.conv_mu(h, edge_index, edge_attr)
+        logvar = self.conv_logvar(h, edge_index, edge_attr)
         
         return mu, logvar
 
@@ -111,13 +116,8 @@ class VGAE_Classifier(nn.Module):
         # Node feature encoder (if nodes have no features, use embeddings)
         self.node_encoder = nn.Embedding(1, input_dim)
         
-        # Edge feature encoder
-        if use_edge_attr:
-            self.edge_encoder = nn.Linear(7, hidden_dim)  # Assuming 7-dim edge features
-        
-        # VGAE components
-        encoder_input_dim = input_dim + (hidden_dim if use_edge_attr else 0)
-        self.encoder = GraphEncoder(encoder_input_dim, hidden_dim, latent_dim, gnn_type, dropout) 
+        # VGAE components - custom convolutions handle edge attributes internally
+        self.encoder = GraphEncoder(input_dim, hidden_dim, latent_dim, gnn_type, dropout) 
         self.decoder = GraphDecoder(latent_dim)
 
         # Classifier
@@ -140,23 +140,8 @@ class VGAE_Classifier(nn.Module):
         else:
             return mu
     
-    def encode_edges(self, edge_attr, edge_index, num_nodes):
-        """Encode edge features into node features"""
-        if not self.use_edge_attr or edge_attr is None:
-            return torch.zeros(num_nodes, 0, device=edge_index.device)
-            
-        edge_emb = self.edge_encoder(edge_attr)
-        
-        # Aggregate edge features to nodes
-        node_edge_features = torch.zeros(num_nodes, edge_emb.size(1), device=edge_index.device)
-        node_edge_features = node_edge_features.scatter_add(0, edge_index[0].unsqueeze(1).expand(-1, edge_emb.size(1)), edge_emb)
-        node_edge_features = node_edge_features.scatter_add(0, edge_index[1].unsqueeze(1).expand(-1, edge_emb.size(1)), edge_emb)
-        
-        return node_edge_features
-    
     def forward(self, data, return_latent=False):
         x, edge_index, edge_attr, batch = data.x, data.edge_index, data.edge_attr, data.batch
-        num_nodes = x.size(0)
         
         # Create node embeddings if x contains indices
         if x.dtype == torch.long:
@@ -166,15 +151,8 @@ class VGAE_Classifier(nn.Module):
             if x.dim() == 1:
                 x = x.unsqueeze(-1)
         
-        # Encode edge features
-        edge_features = self.encode_edges(edge_attr, edge_index, num_nodes)
-        
-        # Combine node and edge features
-        if edge_features.size(1) > 0:
-            x = torch.cat([x, edge_features], dim=1)
-        
-        # Encode to latent space
-        mu, logvar = self.encoder(x, edge_index, batch)
+        # Encode to latent space - edge attributes are handled by custom convolutions
+        mu, logvar = self.encoder(x, edge_index, edge_attr, batch)
         z = self.reparameterize(mu, logvar)
         
         # Classification

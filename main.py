@@ -11,7 +11,7 @@ import argparse
 from src.loadData import GraphDataset
 from src.utils import set_seed
 from src.models import GNN
-from src.loss import NoisyCrossEntropyLoss
+from src.models import NoisyCrossEntropyLoss
 
 # Set the random seed
 set_seed()
@@ -119,19 +119,6 @@ def main(args):
     # Identify dataset folder (A, B, C, or D)
     test_dir_name = os.path.basename(os.path.dirname(args.test_path))
 
-    # Deligate drop ratio
-    if args.drop_ratio == None:
-        if test_dir_name == 'A':
-            args.drop_ratio = 0.5
-        elif test_dir_name == 'B':
-            args.drop_ratio = 0.5
-        elif test_dir_name == 'C':
-            args.drop_ratio = 0.3
-        elif test_dir_name == 'D':
-            args.drop_ratio = 0.4
-        else:
-            args.drop_ratio = 0.0
-
     # Init GNN
     if args.gnn == 'gin':
         model = GNN(gnn_type = 'gin', num_class = 6, num_layer = args.num_layer, emb_dim = args.emb_dim, drop_ratio = args.drop_ratio, virtual_node = False).to(device)
@@ -147,16 +134,6 @@ def main(args):
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # Init loss
-    if args.baseline_mode == None:
-        if test_dir_name == 'C' or 'D':
-            args.baseline_mode = 2
-            if args.noise_prob == None:
-                if test_dir_name == 'D':
-                    args.noise_prob = 0.4
-                else:
-                    args.noise_prob = 0.3
-        else:
-            args.baseline_mode = 1
     if args.baseline_mode == 2:
         criterion = NoisyCrossEntropyLoss(args.noise_prob)
     else:
@@ -248,13 +225,13 @@ if __name__ == "__main__":
     parser.add_argument("--num_checkpoints", type=int, help="Number of checkpoints to save during training.")
     parser.add_argument('--device', type=int, default=1, help='Which GPU to use if any (default: 1)')
     parser.add_argument('--gnn', type=str, default='gin-virtual', help='GNN type: gin, gin-virtual, gcn, gcn-virtual (default: gin-virtual)')
-    parser.add_argument('--drop_ratio', type=float, default=None, help='Dropout ratio (default per dataset: A or B (0.5), C (0.3), D (0.4))')
+    parser.add_argument('--drop_ratio', type=float, default=0.5, help='Dropout ratio (default: 0.5)')
     parser.add_argument('--num_layer', type=int, default=5, help='Number of GNN message passing layers (default: 5)')
     parser.add_argument('--emb_dim', type=int, default=300, help='Dimensionality of hidden units in GNNs (default: 300)')
     parser.add_argument('--batch_size', type=int, default=32, help='Input batch size for training (default: 32)')
     parser.add_argument('--epochs', type=int, default=200, help='Number of epochs to train (default: 200)')
-    parser.add_argument('--baseline_mode', type=int, default=None, help='Baseline mode: 1 (CE), 2 (Noisy CE) (default per dataset: A or B (1), C or D (2))')
-    parser.add_argument('--noise_prob', type=float, default=None, help='Noise probability p - used if baseline_mode=2 (default per dataset: C (0.3), D (0.4))')
+    parser.add_argument('--baseline_mode', type=int, default=1, help='Baseline mode: 1 (CE), 2 (Noisy CE) (default: 1)')
+    parser.add_argument('--noise_prob', type=float, default=0.2, help='Noise probability p  (used if baseline_mode=2. default=0.2)')
     
     args = parser.parse_args()
     main(args)

@@ -1,0 +1,1 @@
+We tried implementing the NCOD loss to improve learning with noisy labels from this paper [https://arxiv.org/abs/2303.09470] but it didn't perform as well as just learning from normalCE with high drop out rate.

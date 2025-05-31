@@ -156,7 +156,11 @@ class VGAE_Classifier(nn.Module):
         
         # Create node embeddings if x contains indices
         if x.dtype == torch.long:
-            x = self.node_encoder(x).squeeze()
+            x = self.node_encoder(x)
+            while x.dim() > 2:
+                x = x.squeeze(-1)
+            if x.dim() == 1:
+                x = x.unsqueeze(-1)
         
         # Encode edge features
         edge_features = self.encode_edges(edge_attr, edge_index, num_nodes)

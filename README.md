@@ -2,7 +2,7 @@
 
 ## Overview
 
-In our final submission of the project, we got an F1 score of 0.8163 on the public dataset. Although we tried many different approaches throughout the week, our best models came from the very first and most simple approach: using GIN + virtual nodes with normal cross-entropy (CE) loss and a dropout ratio of 0.5.
+In our final submission of the project, we (team `purple hippos`) got an F1 score of 0.8163 on the public dataset. Although we tried many different approaches throughout the week, our best models came from the very first and most simple approach: using GIN + virtual nodes with normal cross-entropy (CE) loss and a dropout ratio of 0.5.
 
 GIN + virtual nodes is most effective (from the baseline) for graph classification with noisy labels thanks to its expressivity and good information preservation. We used a high dropout ratio to further prevent the model from overfitting on noise instead of real features. We implemented early stopping and saved the model with the best validation loss (20% of the training dataset).
 

@@ -24,4 +24,6 @@ GIN + virtual nodes is most effective (from the baseline) for graph classificati
 - Applied Variational Graph Autoencoder with NormalCE and NoisyCE and GCN backbone (we’d love to try GIN as well)  
 - Using the mean of edge features as a node feature  
 - Pretraining with contrastive loss + training with NoisyCE  
-- Filtering samples based on high loss, then fine-tuning on the clean dataset  
+- Filtering samples based on high loss, then fine-tuning on the clean dataset
+
+You can find these approaches in our active branches.
